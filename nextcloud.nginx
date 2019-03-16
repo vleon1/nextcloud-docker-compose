@@ -1,0 +1,30 @@
+server {
+        listen 80;
+        server_name nextcloud.vaiman.info;
+        return 301 https://$host$request_uri;
+}
+
+server {
+        listen 443 ssl;
+        server_name nextcloud.vaiman.info;
+
+        ssl_certificate /etc/letsencrypt/live/nextcloud.vaiman.info/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/nextcloud.vaiman.info/privkey.pem;
+
+        client_max_body_size 0;
+
+        # security
+        proxy_hide_header Strict-Transport-Security;
+        add_header Strict-Transport-Security max-age=15768000;
+        add_header X-Content-Type-Options nosniff;
+        add_header X-Frame-Options DENY;
+        add_header X-XSS-Protection '1; mode=block';
+        add_header Cache-Control "no-cache; no-store; must-revalidate";
+        add_header Pragma no-cache;
+
+        location / {
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass http://localhost:8080;
+        }
+}
